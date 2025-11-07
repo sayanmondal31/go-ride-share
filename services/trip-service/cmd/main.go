@@ -1,34 +1,41 @@
 package main
 
 import (
-	"context"
+	"fmt"
 	"log"
-	"ride-sharing/services/trip-service/internal/domain"
+	"net/http"
+	h "ride-sharing/services/trip-service/internal/infrastructure/http"
 	"ride-sharing/services/trip-service/internal/infrastructure/repository"
 	"ride-sharing/services/trip-service/internal/service"
-	"time"
+	"ride-sharing/shared/env"
+)
+
+var (
+	httpAddr = env.GetString("HTTP_ADDR", ":8083")
 )
 
 func main() {
-	ctx := context.Background()
+
 	inmemRepo := repository.NewInmemRepository()
 
 	svc := service.NewService(inmemRepo)
 
-	fare := &domain.RideFareModel{
-		UserID: "42",
+	mux := http.NewServeMux()
+
+	// register handlers
+	httpHandler := h.HttpHandler{Service: svc}
+
+	// register preview endpoint; method filtering should be done inside the handler
+	mux.HandleFunc("/preview", httpHandler.HandleTripPreview)
+
+	server := &http.Server{
+		Addr:    httpAddr,
+		Handler: mux,
 	}
 
-	t, err := svc.CreateTrip(ctx, fare)
-
-	if err != nil {
-		log.Println(err)
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalf("HTTP server error %v", err)
 	}
 
-	log.Println(t)
-
-	// keep program running
-	for {
-		time.Sleep(time.Second)
-	}
+	fmt.Println("hello")
 }

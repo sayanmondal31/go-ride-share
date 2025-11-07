@@ -2,7 +2,13 @@ import { Driver, CarPackageSlug } from "../types";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
-export const DriverCard = ({ driver, packageSlug }: { driver?: Driver | null, packageSlug?: CarPackageSlug }) => {
+export const DriverCard = ({
+  driver,
+  packageSlug,
+}: {
+  driver?: Driver | null;
+  packageSlug?: CarPackageSlug;
+}) => {
   if (!driver) return null;
 
   const CarPlate = ({ plate }: { plate: string }) => (
@@ -10,6 +16,8 @@ export const DriverCard = ({ driver, packageSlug }: { driver?: Driver | null, pa
       {plate.toUpperCase()}
     </span>
   );
+
+  console.log(driver.profilePicture);
 
   return (
     <Card className="">
@@ -21,6 +29,7 @@ export const DriverCard = ({ driver, packageSlug }: { driver?: Driver | null, pa
           <Image
             className="rounded-full"
             src={driver.profilePicture}
+            // src={"/web/src/assets/1.jpg"}
             alt={`${driver.name}'s profile picture`}
             width={50}
             height={50}
@@ -40,5 +49,5 @@ export const DriverCard = ({ driver, packageSlug }: { driver?: Driver | null, pa
         )}
       </CardContent>
     </Card>
-  )
+  );
 };
