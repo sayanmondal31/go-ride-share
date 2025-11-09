@@ -1,16 +1,15 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
+	grpcclients "ride-sharing/services/api-gateway/grpc_clients"
 	"ride-sharing/shared/contracts"
-	"time"
 )
 
 func handleTripPreview(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(time.Second * 9)
+
 	var reqBody previewTripRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
@@ -26,27 +25,45 @@ func handleTripPreview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonBody, _ := json.Marshal(reqBody)
-	reader := bytes.NewReader(jsonBody)
+	// jsonBody, _ := json.Marshal(reqBody)
+	// reader := bytes.NewReader(jsonBody)
 
-	resp, err := http.Post("http://trip-service:8083/preview", "application/json", reader)
+	tripService, err := grpcclients.NewTripServiceClient()
 
 	if err != nil {
-		log.Print(err)
+		log.Fatal(err)
+	}
+
+	defer tripService.Close()
+
+	// tripService.Client.PreviewTrip()
+
+	// resp, err := http.Post("http://trip-service:8083/preview", "application/json", reader)
+
+	// if err != nil {
+	// 	log.Print(err)
+	// 	return
+	// }
+
+	// defer resp.Body.Close()
+
+	tripPreview, err := tripService.Client.PreviewTrip(r.Context(), reqBody.ToProto())
+
+	if err != nil {
+		log.Printf("Failed to preview a trip: %v", err)
+		http.Error(w, "Failed to preview trip", http.StatusInternalServerError)
 		return
 	}
 
-	defer resp.Body.Close()
+	// var respBody any
 
-	var respBody any
-
-	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
-		http.Error(w, "failed to parse JSON data from trip service", http.StatusBadRequest)
-		return
-	}
+	// if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+	// 	http.Error(w, "failed to parse JSON data from trip service", http.StatusBadRequest)
+	// 	return
+	// }
 
 	response := contracts.APIResponse{
-		Data: respBody,
+		Data: tripPreview,
 	}
 
 	writeJSON(w, http.StatusCreated, response)
