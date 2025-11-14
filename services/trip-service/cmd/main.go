@@ -33,7 +33,6 @@ func main() {
 		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 		<-sigCh
 		cancel()
-
 	}()
 
 	lis, err := net.Listen("tcp", GrpcAddr)
