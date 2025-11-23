@@ -1,0 +1,3 @@
+docker build -t europe-west1-docker.pkg.dev/ride-share-golang/ride-share/trip-service:latest --platform linux/amd64 -f infra/production/docker/trip-service.Dockerfile .
+
+gcloud auth configure-docker europe-west1-docker.pkg.dev

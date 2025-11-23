@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: europe-west1-docker.pkg.dev/{{PROJECT_ID}}/ride-sharing/api-gateway
+          # image: europe-west1-docker.pkg.dev/{{Google_PROJECT_ID}}/ride-sharing/api-gateway
+          image: europe-west1-docker.pkg.dev/ride-share-golang/ride-share/api-gateway
           ports:
             - containerPort: 8081
           env:
